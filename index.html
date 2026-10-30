@@ -4,15 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trading Journal Dashboard</title>
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-dark: #121820;
             --card-dark: #1e2630;
-            --card-hover: #263240;
             --text-main: #f0f4f8;
             --text-sub: #94a3b8;
             --accent-capital: #3b82f6;
@@ -34,10 +31,8 @@
             color: var(--text-main);
             display: flex;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        /* Sidebar Navigation */
         .sidebar {
             width: 80px;
             background-color: #1a222d;
@@ -59,15 +54,9 @@
             font-size: 22px;
             color: #fff;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
-
         .nav-icon.home { background-color: var(--accent-capital); }
-        .nav-icon.journal { background-color: #ec4899; }
-        .nav-icon.help { background-color: #06b6d4; }
-        .nav-icon:hover { transform: scale(1.08); filter: brightness(1.2); }
 
-        /* Main Dashboard Content */
         .main-content {
             flex: 1;
             padding: 25px;
@@ -114,7 +103,25 @@
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
 
-        /* Top 4 KPI Metric Cards */
+        .ticker-bar {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .ticker-card {
+            background-color: #161e27;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 13px;
+            min-width: 150px;
+        }
+
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -127,32 +134,20 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 140px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
+            min-height: 130px;
         }
 
-        .kpi-card:hover { transform: translateY(-3px); }
         .kpi-card.capital { background-color: var(--accent-capital); color: #fff; }
         .kpi-card.profit { background-color: var(--accent-profit); color: #fff; }
         .kpi-card.loss { background-color: var(--accent-loss); color: #fff; }
         .kpi-card.balance { background-color: var(--accent-balance); color: #1e293b; }
 
-        .kpi-title {
-            font-size: 26px;
-            font-weight: 700;
-        }
+        .kpi-title { font-size: 20px; font-weight: 700; }
+        .kpi-value { font-size: 28px; font-weight: 800; text-align: right; }
 
-        .kpi-value {
-            font-size: 32px;
-            font-weight: 800;
-            text-align: right;
-        }
-
-        /* Middle Section Grid */
         .dashboard-body {
             display: grid;
-            grid-template-columns: 320px 1fr;
+            grid-template-columns: 300px 1fr;
             gap: 20px;
         }
 
@@ -169,83 +164,62 @@
         .stat-box {
             background-color: var(--card-dark);
             border-radius: 20px;
-            padding: 25px;
+            padding: 20px;
             border: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
         }
 
-        .stat-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
+        .stat-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+        .stat-value { font-size: 36px; font-weight: 800; text-align: right; }
 
-        .stat-value {
-            font-size: 48px;
-            font-weight: 800;
-            text-align: right;
-            color: var(--text-main);
-        }
-
-        .split-box {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            padding-top: 10px;
-        }
-
-        .split-item {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .split-item .label {
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .split-item .val {
-            font-size: 38px;
-            font-weight: 800;
-        }
-
-        /* Chart Area */
         .chart-box {
-            background-color: var(--card-dark);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            position: relative;
-        }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chart-container {
-            position: relative;
-            flex: 1;
-            min-height: 320px;
-        }
-
-        /* Form Controls & Action Buttons */
-        .controls-panel {
             background-color: var(--card-dark);
             border-radius: 20px;
             padding: 20px;
             border: 1px solid var(--border-color);
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 15px;
-            align-items: center;
+        }
+
+        .chart-container {
+            position: relative;
+            flex: 1;
+            min-height: 280px;
+        }
+
+        /* Trades Table Section */
+        .trades-section {
+            background-color: var(--card-dark);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th { color: var(--text-sub); font-weight: 600; }
+
+        /* Controls & Form Panel */
+        .controls-panel {
+            background-color: var(--card-dark);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            align-items: flex-end;
         }
 
         .form-group {
@@ -254,54 +228,28 @@
             gap: 5px;
         }
 
-        .form-group label {
-            font-size: 12px;
-            color: var(--text-sub);
-        }
+        .form-group label { font-size: 12px; color: var(--text-sub); }
 
         input, select {
             background-color: #121820;
             border: 1px solid var(--border-color);
             color: #fff;
-            padding: 10px 14px;
+            padding: 10px;
             border-radius: 8px;
             outline: none;
         }
 
         button {
-            padding: 10px 20px;
+            padding: 10px 15px;
             border-radius: 8px;
             border: none;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
         }
 
         .btn-add { background-color: var(--accent-profit); color: #fff; }
-        .btn-add:hover { background-color: #16a34a; }
-
-        .btn-reset { background-color: #ef4444; color: #fff; margin-left: auto; }
-        .btn-reset:hover { background-color: #dc2626; }
-
-        /* Stock Ticker Bar */
-        .ticker-bar {
-            display: flex;
-            gap: 15px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-        }
-
-        .ticker-card {
-            background-color: #161e27;
-            padding: 10px 16px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            font-size: 14px;
-            min-width: 140px;
-        }
+        .btn-edit { background-color: var(--accent-capital); color: #fff; padding: 5px 10px; font-size: 12px; }
+        .btn-del { background-color: #ef4444; color: #fff; padding: 5px 10px; font-size: 12px; }
 
         .flash-up { animation: flashGreen 0.6s ease; }
         .flash-down { animation: flashRed 0.6s ease; }
@@ -310,7 +258,6 @@
             0% { background-color: rgba(34, 197, 94, 0.4); }
             100% { background-color: #161e27; }
         }
-
         @keyframes flashRed {
             0% { background-color: rgba(239, 68, 68, 0.4); }
             100% { background-color: #161e27; }
@@ -319,300 +266,315 @@
 </head>
 <body>
 
-    <!-- Sidebar -->
     <div class="sidebar">
-        <div class="nav-icon home" title="Home Dashboard"><i class="fa-solid fa-house"></i></div>
-        <div class="nav-icon journal" title="Trade Journal"><i class="fa-solid fa-book"></i></div>
-        <div class="nav-icon help" title="Support & Info"><i class="fa-solid fa-circle-question"></i></div>
+        <div class="nav-icon home"><i class="fa-solid fa-house"></i></div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
-        
-        <!-- Header Bar -->
         <div class="header-bar">
-            <h2>Trading Performance Dashboard</h2>
-            <div class="live-badge">
-                <span class="live-dot"></span> REAL-TIME MARKET DATA ACTIVE
-            </div>
+            <h2>Live Trading Journal & Dashboard</h2>
+            <div class="live-badge"><span class="live-dot"></span> REAL-TIME ACTIVE</div>
         </div>
 
-        <!-- Live Stock Price Ticker -->
-        <div class="ticker-bar" id="tickerBar">
-            <!-- Dynamically populated via JS -->
-        </div>
+        <!-- All Company Stocks Ticker -->
+        <div class="ticker-bar" id="tickerBar"></div>
 
-        <!-- KPI Metric Cards Row -->
+        <!-- KPI Cards -->
         <div class="kpi-grid">
             <div class="kpi-card capital">
                 <div class="kpi-title">Capital</div>
                 <div class="kpi-value" id="valCapital">₹100,000</div>
             </div>
             <div class="kpi-card profit">
-                <div class="kpi-title">Profit</div>
-                <div class="kpi-value" id="valProfit">₹7,340</div>
+                <div class="kpi-title">Total Profit</div>
+                <div class="kpi-value" id="valProfit">₹0</div>
             </div>
             <div class="kpi-card loss">
-                <div class="kpi-title">Loss</div>
+                <div class="kpi-title">Total Loss</div>
                 <div class="kpi-value" id="valLoss">₹0</div>
             </div>
             <div class="kpi-card balance">
                 <div class="kpi-title">Balance</div>
-                <div class="kpi-value" id="valBalance">₹107,340</div>
+                <div class="kpi-value" id="valBalance">₹100,000</div>
             </div>
         </div>
 
-        <!-- Dashboard Body Section -->
+        <!-- Dashboard Body -->
         <div class="dashboard-body">
-            
-            <!-- Left Info Panel -->
             <div class="stats-column">
                 <div class="stat-box">
                     <div class="stat-title">Total Trade's</div>
-                    <div class="stat-value" id="valTotalTrades">3</div>
-                </div>
-
-                <div class="stat-box">
-                    <div class="split-box">
-                        <div class="split-item">
-                            <span class="label" style="color: var(--accent-profit);">Profit</span>
-                            <span class="val" id="valProfitTrades">3</span>
-                        </div>
-                        <div class="split-item" style="text-align: right;">
-                            <span class="label" style="color: var(--accent-loss);">Loss</span>
-                            <span class="val" id="valLossTrades">0</span>
-                        </div>
-                    </div>
+                    <div class="stat-value" id="valTotalTrades">0</div>
                 </div>
             </div>
-
-            <!-- Chart Panel -->
             <div class="chart-box">
-                <div class="chart-header">
-                    <span style="color: var(--text-sub); font-size: 13px;">Sum of NET P/L by Stock</span>
-                </div>
+                <span style="color: var(--text-sub); font-size: 13px;">Sum of NET P/L by Stock</span>
                 <div class="chart-container">
                     <canvas id="barChart"></canvas>
                 </div>
             </div>
-
         </div>
 
-        <!-- Add Trade / Simulator Controls -->
+        <!-- Add / Edit Trade Form -->
         <div class="controls-panel">
+            <input type="hidden" id="editIndex" value="-1">
             <div class="form-group">
                 <label>Stock Name</label>
                 <select id="inputStock">
                     <option value="SBIN">SBIN</option>
                     <option value="HUL">HUL</option>
-                    <option value="ICICI">ICICIBANK</option>
-                    <option value="HDFC">HDFCBANK</option>
+                    <option value="ICICI">ICICI</option>
+                    <option value="HDFC">HDFC</option>
                     <option value="RELIANCE">RELIANCE</option>
+                    <option value="TCS">TCS</option>
+                    <option value="INFY">INFY</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>Entry Price (₹)</label>
-                <input type="number" id="inputEntry" placeholder="e.g. 800" value="820">
+                <label>Type</label>
+                <select id="inputType">
+                    <option value="BUY">BUY</option>
+                    <option value="SELL">SELL</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Time</label>
+                <input type="time" id="inputTime">
+            </div>
+            <div class="form-group">
+                <label>Price (₹)</label>
+                <input type="number" id="inputPrice" placeholder="Price">
             </div>
             <div class="form-group">
                 <label>Quantity</label>
-                <input type="number" id="inputQty" placeholder="e.g. 50" value="10">
+                <input type="number" id="inputQty" placeholder="Qty">
             </div>
-            <button class="btn-add" onclick="addTrade()"><i class="fa-solid fa-plus"></i> Add Live Trade</button>
-            <button class="btn-reset" onclick="resetData()"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+            <div class="form-group">
+                <label>Target (₹)</label>
+                <input type="number" id="inputTarget" placeholder="Target">
+            </div>
+            <div class="form-group">
+                <label>Stop Loss (₹)</label>
+                <input type="number" id="inputSL" placeholder="Stop Loss">
+            </div>
+            <button class="btn-add" id="saveBtn" onclick="saveTrade()"><i class="fa-solid fa-plus"></i> Add Trade</button>
         </div>
 
+        <!-- Trades History Table -->
+        <div class="trades-section">
+            <h3 style="margin-bottom: 15px;">Active Trade History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Stock</th>
+                        <th>Type</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Target</th>
+                        <th>Stop Loss</th>
+                        <th>Net P/L</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tradesTableBody">
+                    <!-- Dynamic Rows -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- Application Script -->
     <script>
-        // Initial Mock Stocks with Live Base Prices
         const stocks = {
-            'SBIN': { price: 825.40, basePL: 4240 },
-            'HUL': { price: 2450.10, basePL: 1600 },
-            'ICICI': { price: 1120.80, basePL: 1500 },
-            'HDFC': { price: 1530.00, basePL: 0 },
-            'RELIANCE': { price: 2980.50, basePL: 0 }
+            'SBIN': { price: 825.40, change: +1.2 },
+            'HUL': { price: 2450.10, change: -0.5 },
+            'ICICI': { price: 1120.80, change: +0.8 },
+            'HDFC': { price: 1530.00, change: +1.5 },
+            'RELIANCE': { price: 2980.50, change: -1.1 },
+            'TCS': { price: 3900.00, change: +0.4 },
+            'INFY': { price: 1650.20, change: -0.2 }
         };
 
-        // User Positions Tracked
-        let trades = [
-            { stock: 'SBIN', qty: 20, entry: 613.40 },
-            { stock: 'HUL', qty: 10, entry: 2290.10 },
-            { stock: 'ICICI', qty: 15, entry: 1020.80 }
-        ];
-
+        let trades = [];
         let baseCapital = 100000;
         let chartInstance = null;
 
-        // Initialize Bar Chart
+        document.getElementById('inputTime').value = new Date().toTimeString().slice(0, 5);
+
         function initChart() {
             const ctx = document.getElementById('barChart').getContext('2d');
             chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['SBIN', 'HUL', 'ICICI', 'HDFC'],
+                    labels: Object.keys(stocks),
                     datasets: [{
                         label: 'NET P/L (₹)',
-                        data: [4240, 1600, 1500, 0],
+                        data: new Array(Object.keys(stocks).length).fill(0),
                         backgroundColor: '#3b82f6',
                         borderRadius: 6,
-                        barThickness: 18
+                        barThickness: 15
                     }]
                 },
                 options: {
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        x: {
-                            grid: { color: '#2e3a4e' },
-                            ticks: { color: '#94a3b8' },
-                            min: 0,
-                            max: 4500
-                        },
-                        y: {
-                            grid: { display: false },
-                            ticks: { color: '#ffffff', font: { weight: 'bold' } }
-                        }
+                        x: { grid: { color: '#2e3a4e' }, ticks: { color: '#94a3b8' } },
+                        y: { grid: { display: false }, ticks: { color: '#ffffff', font: { weight: 'bold' } } }
                     }
                 }
             });
         }
 
-        // Render Ticker UI
         function renderTicker() {
             const container = document.getElementById('tickerBar');
             container.innerHTML = '';
             for (let symbol in stocks) {
                 const item = stocks[symbol];
+                const isGreen = item.change >= 0;
                 const div = document.createElement('div');
                 div.className = 'ticker-card';
                 div.id = `ticker-${symbol}`;
                 div.innerHTML = `
-                    <span style="font-weight: bold; color: #fff;">${symbol}</span>
-                    <span id="price-${symbol}">₹${item.price.toFixed(2)}</span>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="font-weight: bold; color: #fff;">${symbol}</span>
+                        <span style="color: ${isGreen ? '#22c55e' : '#ef4444'};">${isGreen ? '+' : ''}${item.change}%</span>
+                    </div>
+                    <span id="price-${symbol}" style="font-size: 15px; font-weight: bold;">₹${item.price.toFixed(2)}</span>
                 `;
                 container.appendChild(div);
             }
         }
 
-        // Recalculate Dashboard Stats based on Live Market Prices
         function updateDashboard() {
             let totalProfit = 0;
             let totalLoss = 0;
-            let profitTradeCount = 0;
-            let lossTradeCount = 0;
+            const stockPLMap = {};
+            Object.keys(stocks).forEach(s => stockPLMap[s] = 0);
 
-            const stockPLMap = { 'SBIN': 0, 'HUL': 0, 'ICICI': 0, 'HDFC': 0 };
+            const tbody = document.getElementById('tradesTableBody');
+            tbody.innerHTML = '';
 
-            trades.forEach(t => {
-                const currentPrice = stocks[t.stock] ? stocks[t.stock].price : t.entry;
-                const pnl = (currentPrice - t.entry) * t.qty;
-
-                if (stockPLMap.hasOwnProperty(t.stock)) {
-                    stockPLMap[t.stock] += pnl;
+            trades.forEach((t, index) => {
+                const currentPrice = stocks[t.stock] ? stocks[t.stock].price : t.price;
+                let pnl = 0;
+                if (t.type === 'BUY') {
+                    pnl = (currentPrice - t.price) * t.qty;
                 } else {
-                    stockPLMap[t.stock] = pnl;
+                    pnl = (t.price - currentPrice) * t.qty;
                 }
 
-                if (pnl >= 0) {
-                    totalProfit += pnl;
-                    profitTradeCount++;
-                } else {
-                    totalLoss += Math.abs(pnl);
-                    lossTradeCount++;
-                }
+                stockPLMap[t.stock] = (stockPLMap[t.stock] || 0) + pnl;
+
+                if (pnl >= 0) totalProfit += pnl;
+                else totalLoss += Math.abs(pnl);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${t.time}</td>
+                    <td><b>${t.stock}</b></td>
+                    <td><span style="color: ${t.type === 'BUY' ? '#22c55e' : '#f97316'};">${t.type}</span></td>
+                    <td>₹${t.price}</td>
+                    <td>${t.qty}</td>
+                    <td>₹${t.target}</td>
+                    <td>₹${t.sl}</td>
+                    <td style="color: ${pnl >= 0 ? '#22c55e' : '#ef4444'}; font-weight: bold;">₹${pnl.toFixed(2)}</td>
+                    <td>
+                        <button class="btn-edit" onclick="editTrade(${index})">Edit</button>
+                        <button class="btn-del" onclick="deleteTrade(${index})">Del</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
             });
 
             const netBalance = baseCapital + totalProfit - totalLoss;
 
-            // Update DOM UI Elements
             document.getElementById('valCapital').innerText = `₹${baseCapital.toLocaleString('en-IN')}`;
             document.getElementById('valProfit').innerText = `₹${Math.round(totalProfit).toLocaleString('en-IN')}`;
             document.getElementById('valLoss').innerText = `₹${Math.round(totalLoss).toLocaleString('en-IN')}`;
             document.getElementById('valBalance').innerText = `₹${Math.round(netBalance).toLocaleString('en-IN')}`;
-
             document.getElementById('valTotalTrades').innerText = trades.length;
-            document.getElementById('valProfitTrades').innerText = profitTradeCount;
-            document.getElementById('valLossTrades').innerText = lossTradeCount;
 
-            // Update Chart Data horizontally
             if (chartInstance) {
                 const labels = Object.keys(stockPLMap);
                 const chartData = labels.map(key => Math.round(stockPLMap[key]));
-
                 chartInstance.data.labels = labels;
                 chartInstance.data.datasets[0].data = chartData;
-
-                // Adjust X-axis maximum automatically
-                const maxVal = Math.max(...chartData, 4500);
-                chartInstance.options.scales.x.max = Math.ceil(maxVal / 500) * 500;
                 chartInstance.update();
             }
         }
 
-        // Real-Time Stock Price Simulator Engine
+        function saveTrade() {
+            const editIndex = parseInt(document.getElementById('editIndex').value);
+            const stock = document.getElementById('inputStock').value;
+            const type = document.getElementById('inputType').value;
+            const time = document.getElementById('inputTime').value;
+            const price = parseFloat(document.getElementById('inputPrice').value);
+            const qty = parseInt(document.getElementById('inputQty').value);
+            const target = parseFloat(document.getElementById('inputTarget').value);
+            const sl = parseFloat(document.getElementById('inputSL').value);
+
+            if (!price || !qty) {
+                alert('Kripya price ane quantity nakho.');
+                return;
+            }
+
+            const tradeObj = { stock, type, time, price, qty, target, sl };
+
+            if (editIndex === -1) {
+                trades.push(tradeObj);
+            } else {
+                trades[editIndex] = tradeObj;
+                document.getElementById('editIndex').value = -1;
+                document.getElementById('saveBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Add Trade';
+            }
+
+            updateDashboard();
+        }
+
+        function editTrade(index) {
+            const t = trades[index];
+            document.getElementById('inputStock').value = t.stock;
+            document.getElementById('inputType').value = t.type;
+            document.getElementById('inputTime').value = t.time;
+            document.getElementById('inputPrice').value = t.price;
+            document.getElementById('inputQty').value = t.qty;
+            document.getElementById('inputTarget').value = t.target;
+            document.getElementById('inputSL').value = t.sl;
+            document.getElementById('editIndex').value = index;
+            document.getElementById('saveBtn').innerHTML = 'Update Trade';
+        }
+
+        function deleteTrade(index) {
+            trades.splice(index, 1);
+            updateDashboard();
+        }
+
         function startRealTimeEngine() {
             setInterval(() => {
                 const stockKeys = Object.keys(stocks);
                 const randomStock = stockKeys[Math.floor(Math.random() * stockKeys.length)];
+                const changePct = (Math.random() * 1.2 - 0.6);
+                
+                stocks[randomStock].price += (stocks[randomStock].price * changePct) / 100;
+                stocks[randomStock].change = parseFloat((stocks[randomStock].change + changePct).toFixed(2));
 
-                // Random fluctuation between -0.8% to +0.8%
-                const percentageChange = (Math.random() * 1.6 - 0.8) / 100;
-                const oldPrice = stocks[randomStock].price;
-                const newPrice = oldPrice * (1 + percentageChange);
-
-                stocks[randomStock].price = newPrice;
-
-                // UI Flash Effect on Stock Ticker
                 const tickerCard = document.getElementById(`ticker-${randomStock}`);
                 const priceSpan = document.getElementById(`price-${randomStock}`);
 
                 if (priceSpan && tickerCard) {
-                    priceSpan.innerText = `₹${newPrice.toFixed(2)}`;
+                    priceSpan.innerText = `₹${stocks[randomStock].price.toFixed(2)}`;
                     tickerCard.classList.remove('flash-up', 'flash-down');
-
-                    void tickerCard.offsetWidth; // Trigger DOM reflow
-
-                    if (newPrice >= oldPrice) {
-                        tickerCard.classList.add('flash-up');
-                        priceSpan.style.color = '#22c55e';
-                    } else {
-                        tickerCard.classList.add('flash-down');
-                        priceSpan.style.color = '#ef4444';
-                    }
+                    void tickerCard.offsetWidth;
+                    tickerCard.classList.add(changePct >= 0 ? 'flash-up' : 'flash-down');
                 }
 
                 updateDashboard();
-            }, 1500);
+            }, 2000);
         }
 
-        // User Action: Add New Trade
-        function addTrade() {
-            const stock = document.getElementById('inputStock').value;
-            const entry = parseFloat(document.getElementById('inputEntry').value);
-            const qty = parseInt(document.getElementById('inputQty').value);
-
-            if (!entry || !qty || entry <= 0 || qty <= 0) {
-                alert('મહેરબાની કરીને સાચો ભાવ અને જથ્થો (Quantity) દાખલ કરો.');
-                return;
-            }
-
-            trades.push({ stock, entry, qty });
-            updateDashboard();
-        }
-
-        // User Action: Reset Data
-        function resetData() {
-            trades = [];
-            updateDashboard();
-        }
-
-        // App Launch Setup
         window.onload = function() {
             initChart();
             renderTicker();
